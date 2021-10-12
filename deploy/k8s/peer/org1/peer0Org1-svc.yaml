@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer0-org1
+  labels:
+    app: peer0-org1
+spec:
+  type: ClusterIP
+  selector:
+    app: peer0-org1
+  ports:
+    - name: grpc
+      protocol: TCP
+      targetPort: 7051
+      port: 7051
+    - name: event
+      protocol: TCP
+      targetPort: 7061
+      port: 7061
+---
+#---------------- Peer0 Org1 Metrics Service ---------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer0-org1-metrics
+  labels:
+    app: peer0-org1
+    metrics-service: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: peer0-org1
+  ports:
+  - name: "peer-metrics"
+    targetPort: 9443 # container metric portu
+    port: 9443

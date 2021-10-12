@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+spec:
+  type: ClusterIP
+  selector:
+    app: kafka
+  ports:
+  - name: "broker"
+    targetPort: 9092 # container metric portu
+    port: 9092
+
+---
+#---------------- Kafka Headless Service ---------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: broker
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: kafka
+  ports:
+  - name: "broker"
+    targetPort: 9092 # container metric portu
+    port: 9092

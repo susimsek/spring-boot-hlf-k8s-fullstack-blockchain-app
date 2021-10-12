@@ -1,0 +1,46 @@
+
+    <div class="example-container">
+        <div class="form-container">
+
+            <form [formGroup]="assetForm" (submit)="submit()">
+                <mat-form-field class="form-field" appearance="outline">
+                    <mat-label> ID
+                    </mat-label>
+                    <input matInput formControlName="ID" required>
+                </mat-form-field>
+                <mat-form-field class="form-field" appearance="outline">
+                    <mat-label> Owner
+                    </mat-label>
+                    <input matInput formControlName="owner">
+
+                </mat-form-field>
+
+
+                <mat-form-field class="form-field" appearance="outline">
+                    <mat-label> Color
+                    </mat-label>
+                    <input matInput formControlName="color">
+
+                </mat-form-field>
+
+
+                <mat-form-field class="form-field" appearance="outline">
+                    <mat-label> Size
+                    </mat-label>
+                    <input matInput formControlName="size" type="number">
+
+                </mat-form-field>
+
+
+
+                <mat-form-field class="form-field" appearance="outline">
+                    <mat-label> Appraisal Value
+                    </mat-label>
+                    <input matInput formControlName="appraisedValue" type="number">
+
+                </mat-form-field>
+
+                <button mat-raised-button [disabled]="!this.assetForm.valid" color="primary" type="submit">{{data.button}}</button>
+            </form>
+        </div>
+    </div>

@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-connection-profile
+spec:
+  backoffLimit: 1
+  parallelism: 1 # maksiumum çalıştırılacak pod
+  completions: 1
+  template:
+    spec:
+      containers:
+      - name: create-connection-profile
+        image: hyperledger/fabric-tools:2.3
+        workingDir: /
+        command:
+          - /bin/bash
+          - -c
+          - |
+            ./scripts/ccp.sh &&
+            cp ./organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/* ./organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/priv_sk
+        volumeMounts:
+          - name: fabricfiles
+            mountPath: /organizations # root dizinde bu pathe mount eder.
+            subPath: organizations # nfs dir pathi
+          - name: fabricfiles
+            mountPath: /scripts
+            subPath: scripts # nfs dir pathi
+          - name: fabricfiles
+            mountPath: /connection-profile
+            subPath: connection-profile
+      restartPolicy: Never
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper0-pv
+  labels:
+    app: zookeeper
+    podindex: "0"
+spec:
+  storageClassName: default
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    path: /srv/kubedata/fabricfiles/broker/zookeeper0
+    server: 192.168.12.9
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper1-pv
+  labels:
+    app: zookeeper
+    podindex: "1"
+spec:
+  storageClassName: default
+  volumeMode: Filesystem
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  nfs:
+    path: /srv/kubedata/fabricfiles/broker/zookeeper1
+    server: 192.168.12.9

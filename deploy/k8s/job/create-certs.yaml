@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-certs
+spec:
+  backoffLimit: 1
+  parallelism: 1 # maksiumum çalıştırılacak pod
+  completions: 1
+  template:
+    metadata:
+      name: create-certs
+    spec:
+      containers:
+      - name: create-certs
+        image: hyperledger/fabric-ca-tools:1.2.1
+        command:
+          - /bin/sh
+          - -c
+          - |
+            ./scripts/orderer-certs.sh &&
+            ./scripts/org1-certs.sh &&
+            ./scripts/org2-certs.sh &&
+            ./scripts/org3-certs.sh
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "300m"
+          limits:
+            memory: "500Mi"
+            cpu: "350m"
+        volumeMounts:
+          - name: fabricfiles
+            mountPath: /organizations # root dizinde bu pathe mount eder.
+            subPath: organizations # nfs dir pathi
+          - name: fabricfiles
+            mountPath: /scripts
+            subPath: scripts # nfs dir pathi
+      restartPolicy: Never
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

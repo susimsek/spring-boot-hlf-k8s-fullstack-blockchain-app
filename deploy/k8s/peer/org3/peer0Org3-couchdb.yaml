@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer0-org3-couchdb
+  labels:
+    app: peer0-org3-couchdb
+spec:
+  selector:
+    matchLabels:
+      app: peer0-org3-couchdb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: peer0-org3-couchdb
+    spec:
+      containers:
+      - name: couchdb
+        image: hyperledger/fabric-couchdb:0.4.15
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "200m"
+          limits:
+            memory: "300Mi"
+            cpu: "300m"
+        ports:
+          - containerPort: 5984
+        livenessProbe:
+          tcpSocket:
+            port: 5984
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          tcpSocket:
+            port: 5984
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 5
+        env:
+          - name: COUCHDB_USER
+            value: admin
+          - name: COUCHDB_PASSWORD
+            value: adminpw
+        volumeMounts:
+          - name: fabricfiles
+            mountPath: /opt/couchdb/data
+            subPath: state/org3/peer0-couchdb # couchdb datası
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

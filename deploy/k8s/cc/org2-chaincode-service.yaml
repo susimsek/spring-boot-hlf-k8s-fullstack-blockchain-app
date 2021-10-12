@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: basic-org2
+  labels:
+    app: basic-org2
+spec:
+  selector:
+    app: chaincode-basic-org2
+  ports:
+  - name: grpc
+    protocol: TCP
+    targetPort: 7052
+    port: 7052

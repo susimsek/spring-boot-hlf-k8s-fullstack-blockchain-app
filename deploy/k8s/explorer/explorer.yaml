@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer
+  labels:
+    app: explorer
+spec:
+  selector:
+    matchLabels:
+      app: explorer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: explorer
+    spec:
+      containers:
+        - name: explorer
+          image: hyperledger/explorer:1.1.8
+          resources:
+            limits:
+              memory: "528Mi"
+              cpu: "400m"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_HOST
+              value: "explorer-db"
+            - name: DATABASE_DATABASE
+              value: "fabricexplorer"
+            - name: DATABASE_USERNAME
+              value: "hppoc"
+            - name: DATABASE_PASSWD
+              value: "password"
+            - name: LOG_LEVEL_APP
+              value: "debug"
+            - name: LOG_LEVEL_DB
+              value: "debug"
+            - name: LOG_LEVEL_CONSOLE
+              value: "info"
+            - name: LOG_CONSOLE_STDOUT
+              value: "true"
+            - name: DISCOVERY_AS_LOCALHOST
+              value: "false"
+          volumeMounts:
+            - name: fabricfiles
+              mountPath: /organizations
+              subPath: organizations # sertifikalar için
+            - name: explorer-config
+              mountPath: /opt/explorer/app/platform/fabric/config.json
+              subPath: config.json  # fabric bağlantısı için gerekli.pathi tutar.
+            - name: explorer-config
+              mountPath: /opt/explorer/app/platform/fabric/first-network.json
+              subPath: network.json # fabric bağlantısı için gerekli.
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc
+        - name: explorer-config
+          configMap:
+            name: explorer-config
+            items:
+              - key: config.json
+                path: config.json
+              - key: network.json
+                path: network.json

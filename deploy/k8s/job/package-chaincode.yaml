@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: package-chaincode
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: package-chaincode
+        image: busybox:1.34.0
+        command:
+          - /bin/sh
+          - -c
+          - |
+            ./scripts/packageChaincode.sh --cc_name=${CHAINCODE_NAME} --cc_org1=${CC_ORG1} --cc_org2=${CC_ORG2} --cc_org3=${CC_ORG3}
+        env:
+          - name: CHAINCODE_NAME
+            value: basic
+          - name: CC_ORG1
+            value: basic-org1:7052
+          - name: CC_ORG2
+            value: basic-org2:7052
+          - name: CC_ORG3
+            value: basic-org3:7052
+        volumeMounts:
+          - name: fabricfiles
+            mountPath: /chaincode
+            subPath: chaincode # channel transaction tutulur.
+          - name: fabricfiles
+            mountPath: /scripts
+            subPath: scripts
+      restartPolicy: Never
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

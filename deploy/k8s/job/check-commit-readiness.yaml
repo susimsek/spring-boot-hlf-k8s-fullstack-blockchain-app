@@ -1,0 +1,72 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: check-commit-readiness
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: check-commit-readiness
+        image: hyperledger/fabric-tools:2.3
+        command:
+          - /bin/bash
+          - -c
+          - |
+            peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name $CHAINCODE_NAME --version $CHAINCODE_VERSION --init-required --sequence 1 -o $ORDERER_URL --tls --cafile $ORDERER_CA
+        env:
+          - name: ORDERER_CA # orderer ca konfigurasyonu
+            value: /organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+          - name: CORE_PEER_ADDRESS # peer adresi
+            value: peer0-org1:7051
+          - name: CORE_PEER_ID
+            value: cli.peer0.org1.example.com
+          - name: CORE_PEER_LOCALMSPID
+            value: Org1MSP
+          - name: CORE_PEER_MSPCONFIGPATH
+            value: /organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+          - name: CORE_PEER_TLS_CERT_FILE
+            value: /organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt
+          - name: CORE_PEER_TLS_ENABLED
+            value: "true"
+          - name: CORE_PEER_TLS_KEY_FILE
+            value: /organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key
+          - name: CORE_PEER_TLS_ROOTCERT_FILE
+            value: /organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+          - name: FABRIC_LOGGING_SPEC
+            value: ERROR
+          - name: GOPATH
+            value: /opt/gopath
+          - name: SYS_CHANNEL
+            value: system-channel
+          - name: CORE_CHAINCODE_BUILDER
+            value: hyperledger/fabric-ccenv:1.4.8
+          - name: CHANNEL_NAME
+            value: mychannel
+          - name: CHAINCODE_NAME
+            value: basic
+          - name: CHAINCODE_VERSION
+            value: "1.0"
+          - name: ORDERER_URL
+            value: orderer:7050
+        volumeMounts:
+            - name: fabricfiles
+              mountPath: /organizations
+              subPath: organizations # sertifikalara erişmek için
+            - name: fabricfiles
+              mountPath: /configtx
+              subPath: configtx # configtx.yaml dosyası için.
+            - name: fabricfiles
+              mountPath: /channel-artifacts
+              subPath: channel-artifacts # channel artifact dir
+            - name: fabricfiles
+              mountPath: /scripts
+              subPath: scripts
+            - name: fabricfiles
+              mountPath: /opt/gopath/src/github.com/chaincode
+              subPath: chaincode # chanicode dir
+      restartPolicy: Never
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

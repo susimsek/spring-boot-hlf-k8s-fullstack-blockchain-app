@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderer4
+  labels: 
+    app: orderer4
+spec:
+  selector:
+    matchLabels:
+      app: orderer4
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: orderer4
+    spec:
+      containers:
+      - name: orderer4
+        image: hyperledger/fabric-orderer:2.3
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "150m"   
+          limits:
+            memory: "250Mi"
+            cpu: "250m"
+        ports:
+          - containerPort: 7050
+          - containerPort: 9444
+        livenessProbe:
+          httpGet:
+            port: 9444
+            path: /healthz
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+            httpGet:
+              port: 9444
+              path: /healthz
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+        env:
+          - name: CONFIGTX_ORDERER_ADDRESSES
+            value: "orderer4:7050"
+          - name: ORDERER_GENERAL_LISTENADDRESS
+            value: "0.0.0.0"
+          - name: ORDERER_GENERAL_LISTENPORT
+            value: "7050"
+          - name: ORDERER_GENERAL_LOGLEVEL
+            value: debug
+          - name: ORDERER_GENERAL_LOCALMSPDIR
+            value: /organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/msp
+          - name: ORDERER_GENERAL_LOCALMSPID
+            value: OrdererMSP
+          - name: ORDERER_GENERAL_GENESISMETHOD
+            value: file
+          - name: ORDERER_GENERAL_GENESISFILE
+            value: /system-genesis-block/genesis.block
+          - name: ORDERER_GENERAL_TLS_ENABLED
+            value: "true"
+          - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+            value: /organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.key
+          - name: ORDERER_GENERAL_TLS_CERTIFICATE
+            value: /organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
+          - name: ORDERER_GENERAL_TLS_ROOTCAS
+            value: /organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/ca.crt
+          - name:  ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY
+            value: /organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.key
+          - name:  ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE
+            value: /organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
+          - name: ORDERER_OPERATIONS_LISTENADDRESS # metric endpoint
+            value: 0.0.0.0:9444
+          - name: ORDERER_METRICS_PROVIDER
+            value: prometheus
+          - name: CONFIGTX_ORDERER_ORDERERTYPE
+            value: kafka
+          - name: CONFIGTX_ORDERER_KAFKA_BROKERS
+            value: "broker-0.broker:9092,broker-1.broker:9092"
+          - name: ORDERER_KAFKA_RETRY_SHORTINTERVAL
+            value: 1s
+          - name: ORDERER_KAFKA_RETRY_SHORTTOTAL
+            value: 30s
+          - name: ORDERER_KAFKA_VERBOSE
+            value: "true"
+        volumeMounts:
+          - name:  fabricfiles
+            mountPath:  /organizations
+            subPath: organizations # sertifikalar için gerekli.
+          - name: fabricfiles
+            mountPath: /system-genesis-block
+            subPath: system-genesis-block # genesis blocka ihtiyaç duyuyor.
+          - name: fabricfiles
+            mountPath: /var/hyperledger/production/orderer
+            subPath: state/orderer4 # peerin persistence datası
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

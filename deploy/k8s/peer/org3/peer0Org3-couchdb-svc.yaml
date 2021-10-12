@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer0-org3-couchdb
+  labels:
+    app: peer0-org3-couchdb
+spec:
+  type: ClusterIP
+  selector:
+    app: peer0-org3-couchdb
+  ports:
+    - name: couchdb
+      protocol: TCP
+      targetPort: 5984
+      port: 5984

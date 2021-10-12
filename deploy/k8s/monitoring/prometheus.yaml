@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.29.2
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "300m"
+        ports:
+        - containerPort: 9090
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 4
+          failureThreshold: 3
+          successThreshold: 1
+        volumeMounts:
+          - name: prometheus
+            mountPath: /prometheus
+            subPath: monitoring/prometheus
+          - name:  prometheus-config
+            mountPath:  /etc/prometheus/prometheus.yml
+            subPath: prometheus.yml # prometheus dosyası pathi verildi.
+      volumes:
+        - name: prometheus
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc
+        - name:  prometheus-config
+          configMap:
+            name: monitoring-config
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml 

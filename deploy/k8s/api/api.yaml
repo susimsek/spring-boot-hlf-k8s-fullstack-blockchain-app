@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: api
+spec:
+  selector:
+    matchLabels:
+      app: api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: suayb/hlf-api:1.0.0
+        imagePullPolicy: Always
+        stdin: true
+        tty: true
+        resources:
+          requests:
+            memory: "400Mi"
+            cpu: "300m"
+          limits:
+            memory: "450Mi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            port: 8080
+            path: /actuator/health/liveness
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            port: 8080
+            path: /actuator/health/readiness
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          failureThreshold: 3
+        env:
+          - name: HYPERLEDGER-FABRIC_NETWORK-CONFIG
+            value: "file:/usr/src/app/connection-profile/connection-org1.json"
+          - name: HYPERLEDGER-FABRIC_WALLET-PATH
+            value: /usr/src/app/wallet
+          - name: HYPERLEDGER-FABRIC_CA-CLIENT_CA-NAME
+            value: ca-org1
+          - name: HYPERLEDGER-FABRIC_GATEWAY_CHANNEL-NAME
+            value: mychannel
+          - name: HYPERLEDGER-FABRIC_GATEWAY_CHAINCODE-NAME
+            value: basic
+          - name: HYPERLEDGER-FABRIC_CA-CLIENT_ADMIN-USER-ID
+            value: admin
+          - name: HYPERLEDGER-FABRIC_CA-CLIENT_ADMIN-PASSWORD
+            value: adminpw
+          - name: HYPERLEDGER-FABRIC_GATEWAY_CA-USER_REGISTRATION-ENABLED
+            value: "true"
+          - name: HYPERLEDGER-FABRIC_GATEWAY_CA-USER_USER-ID
+            value: tom
+          - name: HYPERLEDGER-FABRIC_GATEWAY_CA-USER_ORG-MSP
+            value: Org1MSP
+          - name: HYPERLEDGER-FABRIC_GATEWAY_CA-USER_AFFILIATION
+            value: org1.department1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: data
+            mountPath: /usr/src/app/connection-profile
+            subPath: connection-profile # blochani networke erişmek için gerekli.
+          - name: data
+            mountPath: /organizations
+            subPath: organizations # sertifiakalar erişim için gerekli.
+          - name: data
+            mountPath: /usr/src/app/wallet
+            subPath: wallet # identity kalıcı hale gelir,api chash verdiğinde bile.
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc
+        - name: ca-client-config

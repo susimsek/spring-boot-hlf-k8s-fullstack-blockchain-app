@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ca-orderer
+  labels:
+    app: ca-orderer
+spec:
+  type: ClusterIP
+  selector:
+    app: ca-orderer # deploymenti bu selector üzerinden bulur.deploymentdeki matchLabels ile aynı olmalı.
+  ports:
+  - protocol: TCP
+    targetPort: 10054 # contanier portu
+    port: 10054 # service portu

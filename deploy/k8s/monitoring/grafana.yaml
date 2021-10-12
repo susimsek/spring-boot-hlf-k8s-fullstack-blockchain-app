@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:8.1.2
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 60
+          timeoutSeconds: 30
+          failureThreshold: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+        env:
+          - name: GF_PATHS_PROVISIONING # provising pathi
+            value: /var/lib/grafana/provisioning/
+          - name: GF_SECURITY_ADMIN_USER # admin user
+            value: admin
+          - name: GF_SECURITY_ADMIN_PASSWORD # admin password
+            value: adminpw
+          - name: GF_USERS_ALLOW_SIGN_UP # signup kapalı
+            value: "false"
+        volumeMounts:
+         - name:  grafana-config
+           mountPath:  /var/lib/grafana/provisioning/datasources/datasource.yml
+           subPath: datasource.yml # prometheus ayarı için
+         - name:  grafana-config
+           mountPath:  /var/lib/grafana/provisioning/dashboards/hlf/dashboard.json
+           subPath: dashboard.json # dashboard görseli çin
+         - name:  grafana-config
+           mountPath:  /var/lib/grafana/provisioning/dashboards/dashboard.yaml
+           subPath: dashboard.yaml # dashboard için
+         - name: grafana
+           mountPath: /var/lib/grafana
+           subPath: monitoring/grafana   
+      volumes:
+        - name: grafana
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc
+        - name: grafana-config
+          configMap: 
+           name: grafana-config
+           items:
+              - key: datasource.yml
+                path: datasource.yml
+              - key: dashboard.json
+                path: dashboard.json # dashbboard için gerekli.
+              - key: dashboard.yaml
+                path: dashboard.yaml # dashbaord dosyası pathi
+          
+
+
+

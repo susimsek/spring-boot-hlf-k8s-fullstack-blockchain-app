@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ca-org2
+  labels:
+    app: ca-org2
+spec:
+  selector:
+    matchLabels:
+      app: ca-org2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ca-org2
+    spec:
+      containers:
+      - name: ca-org2
+        image: hyperledger/fabric-ca:1.4.9
+        imagePullPolicy: IfNotPresent
+        command:
+          [
+            "fabric-ca-server",
+            "start", "-b", "admin:adminpw", "--port", "8054", "-d"
+          ]
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "300m"
+          limits:
+            memory: "500Mi"
+            cpu: "350m"
+        ports:
+          - containerPort: 8054
+        env:
+          - name: FABRIC_CA_SERVER_CA_NAME
+            value: ca-org2
+          - name: FABRIC_CA_SERVER_TLS_ENABLED
+            value: "true"
+          - name: FABRIC_CA_SERVER_CSR_CN
+            value: "ca-org2"
+          - name: FABRIC_CA_SERVER_CSR_HOSTS
+            value: "ca-org2" 
+        volumeMounts:
+          - name: data
+            mountPath: /etc/hyperledger/fabric-ca-server
+            subPath: organizations/fabric-ca/org2
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

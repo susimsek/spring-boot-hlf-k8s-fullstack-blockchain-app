@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderer
+  labels: 
+    app: orderer
+spec:
+  type: ClusterIP
+  selector:
+    app: orderer # deploymenti bu selector üzerinden bulur.deploymentdeki matchLabels ile aynı olmalı.
+  ports:
+  - name: grpc
+    protocol: TCP
+    targetPort: 7050 # contanier portu
+    port: 7050 # service portu
+
+---
+#---------------- Orderer1 Metrics Service ---------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderer-metrics
+  labels:
+    app: orderer
+    metrics-service: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: orderer
+  ports:
+  - name: "orderer-metrics"
+    targetPort: 9444 # container metric portu
+    port: 9444

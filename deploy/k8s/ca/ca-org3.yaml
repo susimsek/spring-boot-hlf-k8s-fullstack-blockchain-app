@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ca-org3
+  labels:
+    app: ca-org3
+spec:
+  selector:
+    matchLabels:
+      app: ca-org3
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ca-org3
+    spec:
+      containers:
+      - name: ca-org3
+        image: hyperledger/fabric-ca:1.4.9
+        imagePullPolicy: IfNotPresent
+        command:
+          [
+            "fabric-ca-server",
+            "start", "-b", "admin:adminpw", "--port", "9054", "-d"
+          ]
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "300m"
+          limits:
+            memory: "500Mi"
+            cpu: "350m"
+        ports:
+          - containerPort: 9054
+        env:
+          - name: FABRIC_CA_SERVER_CA_NAME
+            value: ca-org3
+          - name: FABRIC_CA_SERVER_TLS_ENABLED
+            value: "true"
+          - name: FABRIC_CA_SERVER_CSR_CN
+            value: "ca-org3"
+          - name: FABRIC_CA_SERVER_CSR_HOSTS
+            value: "ca-org3" 
+        volumeMounts:
+          - name: data
+            mountPath: /etc/hyperledger/fabric-ca-server
+            subPath: organizations/fabric-ca/org3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc

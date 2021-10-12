@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  # tls:
+    # - hosts:
+       # - hlf-k8.tk
+       # - api.hlf-k8.tk
+       # - explorer.hlf-k8.tk
+       # - grafana.hlf-k8.tk
+      # secretName: tls-cert # sertifika bu isimde saklanır.
+  rules:
+    - host: hlf-k8.tk # frontend domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80 # servis port
+    - host: api.hlf-k8.tk # api domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8080 # servis port
+    - host: explorer.hlf-k8.tk # explorer domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: explorer
+                port:
+                  number: 8080 # servis port
+    - host: grafana.hlf-k8.tk # grafana domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000 # servis port

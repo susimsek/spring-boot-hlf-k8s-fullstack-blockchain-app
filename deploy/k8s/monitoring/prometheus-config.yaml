@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-config
+  labels:
+    app: monitoring-config
+data: # prometheus.yml dosyası orderer,peer0-org1,peer0-org2,peer0-org3 den metrik çeker.
+  prometheus.yml: |
+      global:
+        scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+        evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+
+      alerting:
+        alertmanagers:
+          - static_configs:
+              - targets:
+                # - alertmanager:9093
+
+      # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+      rule_files:
+      # - "first_rules.yml"
+      # - "second_rules.yml"
+
+      # A scrape configuration containing exactly one endpoint to scrape:
+      # Here it's Prometheus itself.
+      scrape_configs:
+        # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+        - job_name: "prometheus"
+          static_configs:
+            - targets: ["localhost:9090"]
+        - job_name: "orderer"
+          static_configs:
+            - targets: ["orderer-metrics:9444"]
+        - job_name: "orderer2"
+          static_configs:
+            - targets: ["orderer2-metrics:9444"]
+        - job_name: "orderer3"
+          static_configs:
+            - targets: ["orderer3-metrics:9444"]
+        - job_name: "orderer4"
+          static_configs:
+            - targets: ["orderer4-metrics:9444"]
+        - job_name: "orderer5"
+          static_configs:
+            - targets: ["orderer5-metrics:9444"]
+        - job_name: "peer0_org1"
+          static_configs:
+            - targets: ["peer0-org1-metrics:9443"]
+        - job_name: "peer0_org2"
+          static_configs:
+            - targets: ["peer0-org2-metrics:9443"]
+        - job_name: "peer0_org3"
+          static_configs:
+            - targets: ["peer0-org3-metrics:9443"]

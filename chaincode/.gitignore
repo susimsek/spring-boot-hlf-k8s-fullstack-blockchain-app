@@ -1,0 +1,56 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Go template
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+vendor/
+tmp/
+data/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.o
+*.a
+*.so
+*.prof
+*.out
+
+# Editors
+.idea/*
+*.iml
+*.iws
+*.ipr
+*.ids
+*.orig
+
+**/sponge_log.log
+
+testing/kokoro/test-env.sh
+
+# Vagrant
+.vagrant/
+
+# General files for the project
+pkg/*
+*.pyc
+bin/*
+.project
+/.bin
+/_test/secrets/*.json
+
+# OSX leaves these everywhere on SMB shares
+._*
+
+# OSX trash
+.DS_Store
+
+# Chart dependencies
+**/charts/*.tgz
+
+.history

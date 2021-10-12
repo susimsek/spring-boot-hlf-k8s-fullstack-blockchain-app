@@ -1,0 +1,8 @@
+.bold{
+    font-weight: bolder;
+}
+div{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

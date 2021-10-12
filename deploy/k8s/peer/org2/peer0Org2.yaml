@@ -1,0 +1,164 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peer0-org2
+  labels:
+    app: peer0-org2
+spec:
+  selector:
+    matchLabels:
+      app: peer0-org2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: peer0-org2
+    spec:
+      containers:
+      - name: peer
+        image: hyperledger/fabric-peer:2.3
+        command: 
+          [
+            "sh",
+            "-c", 
+            "peer node start"
+          ]
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "200m"
+          limits:
+            memory: "300Mi"
+            cpu: "300m"
+        ports:    
+          - containerPort: 7051
+          - containerPort: 7052
+          - containerPort: 7053
+          - containerPort: 9443
+        livenessProbe:
+          httpGet:
+            port: 9443
+            path: /healthz
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+            httpGet:
+              port: 9443
+              path: /healthz
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+        env:
+          - name: CORE_PEER_ADDRESSAUTODETECT
+            value: "true"
+          - name: CORE_PEER_ID
+            value: peer0-org2
+          - name: CORE_PEER_ADDRESS
+            value: peer0-org2:7051
+          - name: CORE_PEER_LISTENADDRESS
+            value: 0.0.0.0:7051
+          - name: CORE_PEER_EVENTS_ADDRESS
+            value: 0.0.0.0:7061
+          - name: CORE_PEER_GOSSIP_BOOTSTRAP
+            value: peer0-org2:7051
+          - name: CORE_PEER_GOSSIP_ENDPOINT
+            value: peer0-org2:7051
+          - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+            value: peer0-org2:7051
+          - name: CORE_PEER_GOSSIP_ORGLEADER
+            value: "false"
+          - name: CORE_PEER_GOSSIP_USELEADERELECTION
+            value: "true"
+          - name: CORE_PEER_PROFILE_ENABLED
+            value: "true"
+          - name: CORE_PEER_LOCALMSPID
+            value: Org2MSP
+          - name: CORE_PEER_MSPCONFIGPATH
+            value: /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp
+          - name: FABRIC_LOGGING_SPEC
+            value: debug
+          - name: CORE_PEER_TLS_ENABLED
+            value: "true"
+          - name: CORE_PEER_TLS_CERT_FILE
+            value: /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.crt
+          - name: CORE_PEER_TLS_KEY_FILE
+            value: /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.key
+          - name: CORE_PEER_TLS_ROOTCERT_FILE
+            value: /organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+          - name: CORE_LEDGER_STATE_STATEDATABASE
+            value: "CouchDB"
+          - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS #couch db adresi.
+            value: "peer0-org2-couchdb:5984"
+          - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
+            value: "admin"
+          - name: CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
+            value: "adminpw"
+          - name: FABRIC_CFG_PATH
+            value: /etc/hyperledger/fabric
+          - name: CORE_OPERATIONS_LISTENADDRESS # metric endpoint
+            value: 0.0.0.0:9443
+          - name: CORE_METRICS_PROVIDER
+            value: prometheus
+          - name: CORE_VM_ENDPOINT
+            value: unix:///host/var/run/docker.sock
+          - name: CORE_VM_DOCKER_ATTACHSTDOUT
+            value: "true"
+        volumeMounts:
+          - name: fabricfiles 
+            mountPath: /opt/gopath/src/github.com/chaincode/
+            subPath: chaincode/ # chaincode dir
+          - name: fabricfiles
+            mountPath: /organizations
+            subPath: organizations # sertifikaları almak için gerekli.
+          - name: fabricfiles
+            mountPath: /var/hyperledger/production
+            subPath: state/org2/peer0 # peerin persistence datası
+          - name: builders-config
+            mountPath: /etc/hyperledger/fabric/core.yaml
+            subPath: core.yaml # core.yaml dosyasını configden çektik.
+          - name: external-builder-detect
+            mountPath: /builders/external/bin/detect
+            subPath: detect # detect scripti
+          - name: external-builder-build
+            mountPath: /builders/external/bin/build
+            subPath: build # builder scripti
+          - name: external-builder-release
+            mountPath: /builders/external/bin/release
+            subPath: release # release scripti
+          - name: dockersocket
+            mountPath: /host/var/run/docker.sock
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc
+        - name: builders-config
+          configMap:
+            name: builders-config
+            items:
+              - key: core.yaml # configmapdeki key değeri
+                path: core.yaml # nfsde hangi pathe eklesin.subpath gibi.
+        - name: external-builder-detect
+          configMap:
+            name: builders-config
+            items:
+              - key: detect
+                path: detect
+                mode: 0544 # scripti çalışması için geerkli.
+        - name: external-builder-build
+          configMap:
+            name: builders-config
+            items:
+              - key: build
+                path: build
+                mode: 0544 # scripti çalışması için geerkli.
+        - name: external-builder-release
+          configMap:
+            name: builders-config
+            items:
+              - key: release
+                path: release
+                mode: 0544 # scripti çalışması için geerkli.
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ca-org1
+  labels:
+    app: ca-org1
+spec:
+  type: ClusterIP
+  selector:
+    app: ca-org1 # deploymenti bu selector üzerinden bulur.deploymentdeki matchLabels ile aynı olmalı.
+  ports:
+  - protocol: TCP
+    targetPort: 7054 # contanier portu
+    port: 7054 # service portu

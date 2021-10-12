@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer-db
+  labels:
+    app: explorer-db
+spec:
+  selector:
+    matchLabels:
+      app: explorer-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: explorer-db
+    spec:
+      containers:
+      - name: explorer-db
+        image: hyperledger/explorer-db:1.1.8
+        resources:
+          limits:
+            memory: "528Mi"
+            cpu: "400m"
+        ports:
+        - containerPort: 5432
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - exec pg_isready -U "postgres" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - exec pg_isready -U "postgres" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+          failureThreshold: 6
+        env:
+          - name: DATABASE_DATABASE
+            value: fabricexplorer
+          - name: DATABASE_USERNAME
+            value: hppoc
+          - name: DATABASE_PASSWORD
+            value: password 
+        volumeMounts:
+          - name: explorer-db
+            mountPath: /var/lib/postgresql/data
+            subPath: explorer/explorer-db # postgesql datası
+      volumes:
+        - name: explorer-db
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc
+

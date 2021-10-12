@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaincode-basic-org3
+  labels:
+    app: chaincode-basic-org3
+spec:
+  selector:
+    matchLabels:
+      app: chaincode-basic-org3
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: chaincode-basic-org3
+    spec:
+      containers:
+      - name: chaincode-basic-org3
+        image: suayb/basic-cc-hlf:1.0
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 7052 
+        env:
+          - name: CHAINCODE_ID  # notdaki peer0-org3 ile değiştirildi.
+            value: "basic:6739161a64e55d45ec2b852e5218a7580613654fdfc8c3e7656a4c822379b5c4"
+          - name: CHAINCODE_SERVER_ADDRESS
+            value: "0.0.0.0:7052"

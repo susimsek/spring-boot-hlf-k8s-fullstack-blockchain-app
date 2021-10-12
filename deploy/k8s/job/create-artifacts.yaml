@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-artifacts
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: create-artifacts
+        image: hyperledger/fabric-tools:2.3
+        workingDir: /
+        command:
+          - /bin/bash
+          - -c
+          - |
+            ./scripts/createGenesis.sh &&
+            ./scripts/createChannel.sh
+        volumeMounts:
+          - name: fabricfiles
+            mountPath: /organizations
+            subPath: organizations # sertifikalara ihtiyacımız olduğu için buraya mount ettik.
+          - name: fabricfiles
+            mountPath: /configtx 
+            subPath: configtx # configtx.yaml var.genesis block ve channel tranasction için gerekli.
+          - name: fabricfiles
+            mountPath: /system-genesis-block
+            subPath: system-genesis-block # genesis block dosyası tutuluyor
+          - name: fabricfiles
+            mountPath: /channel-artifacts
+            subPath: channel-artifacts # channel transaction tutulur.
+          - name: fabricfiles
+            mountPath: /scripts
+            subPath: scripts # script çalıştırmak için gerekli.
+            # createGenesis.sh genesis blocku oluşturur.system-genesis-block içine
+            # createChannel channel tranasctionu oluşturur.channel-artifacts içinde
+            # createChannel 3 org içinde anco pper oluşturur.
+      restartPolicy: Never
+      volumes:
+        - name: fabricfiles
+          persistentVolumeClaim:
+            claimName: fabricfiles-pvc
