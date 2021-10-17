@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  explorer:
+    image: hyperledger/explorer:1.1.8
+    container_name: explorer
+    depends_on:
+      - explorer-db
+    networks:
+      - test
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - DATABASE_HOST=explorer-db
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWD=password
+      - LOG_LEVEL_APP=debug
+      - LOG_LEVEL_DB=debug
+      - LOG_LEVEL_CONSOLE=info
+      - LOG_CONSOLE_STDOUT=true
+      - DISCOVERY_AS_LOCALHOST=false
+    volumes:
+      - ./organizations:/organizations
+      - ./explorer/config.json:/opt/explorer/app/platform/fabric/config.json
+      - ./explorer/network.json:/opt/explorer/app/platform/fabric/first-network.json
+    ports:
+      - 8080:8080
+
+  explorer-db:
+    image: hyperledger/explorer-db:1.1.8
+    container_name: explorer-db
+    networks:
+      - test
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWORD=password
+    volumes:
+      - explorer:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  explorer:
+    name: explorer
+
+networks:
+  test:
+    name: fabric_test

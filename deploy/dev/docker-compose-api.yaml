@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  api:
+    image: suayb/hlf-api:1.0.0
+    container_name: api
+    networks:
+      - test
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - SERVER_PORT=9090
+      - HYPERLEDGER-FABRIC_NETWORK-CONFIG=file:/usr/src/app/connection-profile/connection-org1.json
+      - HYPERLEDGER-FABRIC_WALLET-PATH=/usr/src/app/wallet
+      - HYPERLEDGER-FABRIC_CA-CLIENT_CA-NAME=ca-org1
+      - HYPERLEDGER-FABRIC_GATEWAY_CHANNEL-NAME=mychannel
+      - HYPERLEDGER-FABRIC_GATEWAY_CHAINCODE-NAME=basic
+      - HYPERLEDGER-FABRIC_CA-CLIENT_ADMIN-USER-ID=admin
+      - HYPERLEDGER-FABRIC_CA-CLIENT_ADMIN-PASSWORD=adminpw
+      - HYPERLEDGER-FABRIC_GATEWAY_CA-USER_REGISTRATION-ENABLED=true
+      - HYPERLEDGER-FABRIC_GATEWAY_CA-USER_USER-ID=tom
+      - HYPERLEDGER-FABRIC_GATEWAY_CA-USER_ORG-MSP=Org1MSP
+      - HYPERLEDGER-FABRIC_GATEWAY_CA-USER_AFFILIATION=org1.department1
+    volumes:
+      - ./connection-profile:/usr/src/app/connection-profile
+      - ./organizations:/organizations
+      - ./wallet:/usr/src/app/wallet
+    ports:
+      - 9090:9090
+
+networks:
+  test:
+    name: fabric_test

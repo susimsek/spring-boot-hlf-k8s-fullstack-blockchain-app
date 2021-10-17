@@ -1,0 +1,1 @@
+docker run --rm --network fabric_test -v "$(pwd)/scripts:/scripts" -v "$(pwd)/organizations:/organizations" hyperledger/fabric-ca-tools:1.2.1 /bin/sh -c "./scripts/org1-certs.sh"

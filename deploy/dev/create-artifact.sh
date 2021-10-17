@@ -1,0 +1,1 @@
+docker run --rm --network fabric_test -w "/" -v "$(pwd)/scripts:/scripts" -v "$(pwd)/organizations:/organizations" -v "$(pwd)/configtx:/configtx" -v "$(pwd)/system-genesis-block:/system-genesis-block" -v "$(pwd)/channel-artifacts:/channel-artifacts" hyperledger/fabric-tools:2.3 /bin/bash -c "./scripts/createGenesis.sh && ./scripts/createChannel.sh"

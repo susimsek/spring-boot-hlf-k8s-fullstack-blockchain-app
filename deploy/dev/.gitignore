@@ -1,0 +1,10 @@
+######################
+# Project Specific
+######################
+wallet/
+channel-artifacts/
+system-genesis-block/
+organizations/*
+connection-profile/*
+!organizations/**/fabric-ca-server-config.yaml
+!connection-profile/ccp-template*
