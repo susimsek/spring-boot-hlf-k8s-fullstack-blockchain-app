@@ -1,4 +1,4 @@
-docker-compose -f docker-compose-api.yaml down -v
+docker-compose -f docker-compose-api.yaml down -v --remove-orphans
 docker-compose -f docker-compose-test-net.yaml down -v
 docker-compose -f docker-compose-ca.yaml down -v
 rm -rf wallet
