@@ -83,7 +83,7 @@ You can login to grafana with these credentials.
 * Nfs Server
 * Ingress Controller
 
-* Minimum 8 cpu
+* Minimum 6 cpu
 * Minimum 10 GB Ram
 
 ## Preparation for Kubernetes Deployment
@@ -145,7 +145,7 @@ sudo chmod u+x *.sh
 
 * Vagrant 2.2+
 * Virtualbox or Hyperv
-* Minimum 8 cpu
+* Minimum 6 cpu
 * Minimum 10 GB Ram
 
 ### Virtual Machine Setup

@@ -20,7 +20,7 @@ BOX_BASE = "ubuntu/focal64"
 	NODES = [
 	{ :hostname => "nfsserver", :ip => "192.168.12.9", :cpus => 1, :mem => 512, :type => "nfs" },
   	{ :hostname => "haproxy", :ip => "192.168.12.10", :cpus => 1, :mem => 512, :type => "haproxy" },
-  	{ :hostname => "k8smaster", :ip => "192.168.12.11", :cpus => 8, :mem => 9728, :type => "k8s" }
+  	{ :hostname => "k8smaster", :ip => "192.168.12.11", :cpus => 4, :mem => 9728, :type => "k8s" }
   	# { :hostname => "k8snode1", :ip => "192.168.12.12", :cpus => 2, :mem => 2048, :type => "k8s" }
 	]
 
