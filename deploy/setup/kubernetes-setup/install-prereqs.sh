@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Variables ########################################
+
 KUBERNETES_DASHBOARD_ENABLED=false
 CERT_MANAGER_ENABLED=true
 JENKINS_ENABLED=false
