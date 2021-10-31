@@ -161,7 +161,7 @@ vagrant up
 ### Nfs Server Installation
 
 ```sh
-vagrant ssh nfserver
+vagrant ssh nfsserver
 ```
 
 ```sh
